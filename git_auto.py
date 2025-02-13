@@ -24,9 +24,9 @@ def add_github_pr_comment(owner, repo, pr_number, commit_id, file_path, comments
             print(f"Error: {response.status_code} - {response.json().get('message', 'Unknown error')}")
 
 
-owner = "SaisaranF22"
-repo = "test-app"
-token = "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"
+owner = "krishna-f22"
+repo = "pr-agent-13"
+token = "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"
 
 
 def get_latest_pr_info(owner, repo, token):
