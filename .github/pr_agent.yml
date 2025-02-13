@@ -2,7 +2,7 @@ name: PR Agent Automation
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]  # Runs when a new PR is created or updated
+    types: [opened, synchronize, reopened]
 
 jobs:
   run-pr-agent:
@@ -19,10 +19,13 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt  # Ensure dependencies are listed in requirements.txt
+          pip install -r requirements.txt
 
       - name: Run PR Agent
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Use a GitHub secret token for authentication
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           python git_auto.py

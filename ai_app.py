@@ -1,52 +1,28 @@
 from groq import Groq
 import json
+import os
 
-client = Groq(api_key="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")
-
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 def read_python_file(file_path):
-
     with open(file_path, "r", encoding="utf-8") as file:
-        lines = [f"{i}: {line.rstrip()}" for i, line in enumerate(file, start=1)]
-
-    return "\n".join(lines)
-
+        return "".join(file.readlines())
 
 def ai_verify(content):
-
-    # code = read_python_file(filepath)
-    chat_completion = client.chat.completions.create(
-        messages=[
-            {
-                "role": "system",
-                "content": """Return only the comments indicating what is wrong and the corresponding line number of the bug. 
-                Do not include the corrected code or explanations beyond the comments. 
-                Avoid extra formatting like triple backticks.
-                Must follow the format of example output
-                Example output: 
-                 { "line_number":1, "comment": "this is a bug"}""",
-            },
-            {"role": "user", "content": content},
-        ],
-        model="llama-3.1-8b-instant",
-        temperature=0.1,
-        max_completion_tokens=1024,
-        top_p=1,
-        stop=None,
-        stream=False,
-    )
-    output = chat_completion.choices[0].message.content
-    comments = [json.loads(line) for line in output.split("\n")]
-
-    return comments
-
-
-def read_python_file(file_path):
-
-    with open(file_path, "r", encoding="utf-8") as file:
-        lines = [f"{i}: {line.rstrip()}" for i, line in enumerate(file, start=1)]
-
-    return "\n".join(lines)
-
-
-# print(ai_verify("/home/team/code/git-pr/pr_diffs/cal.py"))
+    try:
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "system",
+                    "content": """Return JSON array of objects with line_number and comment. Example: [{"line_number":1, "comment": "bug here"}]""",
+                },
+                {"role": "user", "content": content},
+            ],
+            model="llama3-8b-8192",
+            temperature=0.1,
+            response_format={"type": "json_object"}
+        )
+        output = chat_completion.choices[0].message.content
+        return json.loads(output).get("comments", [])
+    except json.JSONDecodeError:
+        return []
