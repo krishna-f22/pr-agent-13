@@ -1,0 +1,28 @@
+name: PR Agent Automation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]  # Runs when a new PR is created or updated
+
+jobs:
+  run-pr-agent:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt  # Ensure dependencies are listed in requirements.txt
+
+      - name: Run PR Agent
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Use a GitHub secret token for authentication
+        run: |
+          python git_auto.py
